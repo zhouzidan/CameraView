@@ -15,7 +15,6 @@ import android.support.annotation.WorkerThread;
 import android.view.SurfaceHolder;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,8 +56,8 @@ class Camera1 extends CameraController {
     private final Object mLock = new Object();
 
 
-    Camera1(CameraView.CameraCallbacks callback, final Preview preview) {
-        super(callback, preview);
+    Camera1(CameraView.CameraCallbacks callback) {
+        super(callback);
     }
 
     /**
@@ -118,7 +117,7 @@ class Camera1 extends CameraController {
     }
 
     private boolean shouldSetup() {
-        return isCameraAvailable() && mPreview.isReady() && !mIsSetup;
+        return isCameraAvailable() && mPreview != null && mPreview.isReady() && !mIsSetup;
     }
 
     // The act of binding an "open" camera to a "ready" preview.
@@ -192,7 +191,7 @@ class Camera1 extends CameraController {
         Exception error = null;
         LOG.i("onStop:", "About to clean up.");
         mHandler.get().removeCallbacks(mPostFocusResetRunnable);
-        if (isCameraAvailable()) {
+        if (mCamera != null) {
             LOG.i("onStop:", "Clean up.", "Ending video?", mIsCapturingVideo);
             if (mIsCapturingVideo) endVideo();
 
@@ -511,7 +510,20 @@ class Camera1 extends CameraController {
     }
 
     private boolean isCameraAvailable() {
-        return mCamera != null;
+        switch (mState) {
+            // If we are stopped, don't.
+            case STATE_STOPPED: return false;
+            // If we are going to be closed, don't act on camera.
+            // Even if mCamera != null, it might have been released.
+            case STATE_STOPPING: return false;
+            // If we are started, act as long as there is no stop/restart scheduled.
+            // At this point mCamera should never be null.
+            case STATE_STARTED: return !mScheduledForStop && !mScheduledForRestart;
+            // If we are starting, theoretically we could act.
+            // Just check that camera is available.
+            case STATE_STARTING: return mCamera != null && !mScheduledForStop && !mScheduledForRestart;
+        }
+        return false;
     }
 
 
@@ -557,7 +569,7 @@ class Camera1 extends CameraController {
      * This is called either on cameraView.start(), or when the underlying surface changes.
      * It is possible that in the first call the preview surface has not already computed its
      * dimensions.
-     * But when it does, the {@link Preview.SurfaceCallback} should be called,
+     * But when it does, the {@link CameraPreview.SurfaceCallback} should be called,
      * and this should be refreshed.
      */
     private Size computeCaptureSize() {

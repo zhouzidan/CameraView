@@ -7,18 +7,23 @@
 
 # CameraView
 
-CameraView is a well documented, high-level library that makes capturing pictures and videos easy, addressing most of the common issues and needs, and still leaving you with flexibility where needed.
+CameraView is a well documented, high-level library that makes capturing pictures and videos easy,
+addressing most of the common issues and needs, and still leaving you with flexibility where needed.
 
 ```groovy
-compile 'com.otaliastudios:cameraview:1.2.1'
+compile 'com.otaliastudios:cameraview:1.2.3'
 ```
 
 <p>
-  <img src="art/screen1.png" width="250" vspace="20" hspace="5">
-  <img src="art/screen2.png" width="250" vspace="20" hspace="5">
+  <img src="art/screen1.jpg" width="250" vspace="20" hspace="5">
+  <img src="art/screen2.jpg" width="250" vspace="20" hspace="5">
+  <img src="art/screen3.jpg" width="250" vspace="20" hspace="5">
 </p>
 
-*This was a fork of [CameraKit-Android library](https://github.com/gogopop/CameraKit-Android), originally a fork of [Google's CameraView library](https://github.com/google/cameraview), but has been [completely rewritten](https://github.com/natario1/CameraView/graphs/contributors?type=d). See [below](#roadmap) for a list of what was done. Feel free to contribute - this is under active development.*
+*This was a fork of [CameraKit-Android](https://github.com/gogopop/CameraKit-Android), originally a
+fork of [Google's CameraView](https://github.com/google/cameraview), but has been
+[completely rewritten](https://github.com/natario1/CameraView/graphs/contributors?type=d).
+See below for a [list of what was done](#roadmap) and [licensing info](#contributing-and-licenses).*
 
 ### Features
 
@@ -55,7 +60,9 @@ compile 'com.otaliastudios:cameraview:1.2.1'
 - [Other APIs](#other-apis)  
 - [Permissions Behavior](#permissions-behavior)
 - [Manifest file](#manifest-file)
+- [Logging](#logging)
 - [Roadmap](#roadmap)
+- [Device-specific issues](#device-specific-issues)
 
 ## Usage
 
@@ -296,7 +303,8 @@ Most camera parameters can be controlled through XML attributes or linked method
     app:cameraVideoQuality="480p"
     app:cameraWhiteBalance="auto"
     app:cameraHdr="off"
-    app:cameraAudio="on"/>
+    app:cameraAudio="on"
+    app:cameraPlaySounds="true"/>
 ```
 
 |XML Attribute|Method|Values|Default Value|
@@ -311,6 +319,7 @@ Most camera parameters can be controlled through XML attributes or linked method
 |[`cameraWhiteBalance`](#camerawhitebalance)|`setWhiteBalance()`|`auto` `incandescent` `fluorescent` `daylight` `cloudy`|`auto`|
 |[`cameraHdr`](#camerahdr)|`setHdr()`|`off` `on`|`off`|
 |[`cameraAudio`](#cameraaudio)|`setAudio()`|`off` `on`|`on`|
+|[`cameraPlaySounds`](#cameraplaysounds)|`setPlaySounds()`|`true` `false`|`true`|
 
 #### cameraSessionType
 
@@ -408,11 +417,24 @@ cameraView.setHdr(Hdr.ON);
 
 #### cameraAudio
 
-Turns on or off audio stream.
+Turns on or off audio stream while recording videos.
 
 ```java
 cameraView.setAudio(Audio.OFF);
 cameraView.setAudio(Audio.ON);
+```
+
+#### cameraPlaySounds
+
+Controls whether we should play platform-provided sounds during certain events (shutter click, focus completed).
+Please note that:
+
+- on API < 16, this flag is always set to `false`
+- the Camera1 engine will always play shutter sounds regardless of this flag
+
+```java
+cameraView.setPlaySounds(true);
+cameraView.setPlaySounds(false);
 ```
 
 ## Other APIs
@@ -470,6 +492,26 @@ The library manifest file is not strict and only asks for camera permissions. Th
 
 If you don't request this feature, you can use `CameraUtils.hasCameras()` to detect if current device has cameras, and then start the camera view.
 
+## Logging
+
+`CameraView` will log a lot of interesting events related to the camera lifecycle. These are important
+to identify bugs. The default logger will simply use Android `Log` methods posting to logcat.
+
+You can attach and detach external loggers using `CameraLogger.registerLogger()`:
+
+```java
+CameraLogger.registerLogger(new Logger() {
+    @Override
+    public void log(@LogLevel int level, String tag, String message, @Nullable Throwable throwable) {
+        // For example...
+        Crashlytics.log(message);
+    }
+});
+```
+
+Make sure you enable the logger using `CameraLogger.setLogLevel(@LogLevel int)`. The default will only
+log error events.
+
 ## Roadmap
 
 This is what was done since the library was forked. I have kept the original structure, but practically all the code was changed.
@@ -510,3 +552,25 @@ These are still things that need to be done, off the top of my head:
 - [ ] add onRequestPermissionResults for easy permission callback
 - [ ] better error handling, maybe with a onError(e) method in the public listener, or have each public method return a boolean
 - [ ] decent code coverage
+
+## Device-specific issues
+
+There are a couple of known issues if you are working with certain devices. The emulator is one of
+the most tricky in this sense.
+
+- Devices, or activities, with hardware acceleration turned off: this can be the case with emulators.
+  In this case we will use SurfaceView as our surface provider. That is intrinsically flawed and can't
+  deal with all we want to do here (runtime layout changes, scaling, etc.). So, nothing to do in this case.
+- Devices with no support for MediaRecorder: the emulator does not support it, officially. This means
+  that video/audio recording is flawed. Again, not our fault.
+
+# Contributing and licenses
+
+The original project which served as a starting point for this library,
+[CameraKit-Android](https://github.com/wonderkiln/CameraKit-Android), is licensed under the
+[MIT](https://github.com/wonderkiln/CameraKit-Android/blob/master/LICENSE) license.
+Additional work is now licensed under the [MIT](https://github.com/natario1/CameraView/blob/master/LICENSE)
+license as well.
+
+You are welcome to contribute with suggestions or pull requests, this is under active development.
+To contact me, <a href="mailto:mat.iavarone@gmail.com">send an email.</a>

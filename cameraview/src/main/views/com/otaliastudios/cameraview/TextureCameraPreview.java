@@ -4,23 +4,25 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.support.annotation.NonNull;
+import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 
-class TextureViewPreview extends Preview<TextureView, SurfaceTexture> {
+class TextureCameraPreview extends CameraPreview<TextureView, SurfaceTexture> {
 
     private Surface mSurface;
 
-    TextureViewPreview(Context context, ViewGroup parent, SurfaceCallback callback) {
+    TextureCameraPreview(Context context, ViewGroup parent, SurfaceCallback callback) {
         super(context, parent, callback);
     }
 
     @NonNull
     @Override
     protected TextureView onCreateView(Context context, ViewGroup parent) {
-        final View root = View.inflate(context, R.layout.texture_view, parent); // MATCH_PARENT
+        View root = LayoutInflater.from(context).inflate(R.layout.texture_view, parent, false);
+        parent.addView(root, 0);
         TextureView texture = root.findViewById(R.id.texture_view);
         texture.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
 

@@ -2,14 +2,13 @@ package com.otaliastudios.cameraview;
 
 import android.graphics.PointF;
 import android.location.Location;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
 import java.io.File;
 
-abstract class CameraController implements Preview.SurfaceCallback {
+abstract class CameraController implements CameraPreview.SurfaceCallback {
 
     private static final String TAG = CameraController.class.getSimpleName();
     private static final CameraLogger LOG = CameraLogger.create(TAG);
@@ -20,7 +19,7 @@ abstract class CameraController implements Preview.SurfaceCallback {
     static final int STATE_STARTED = 2; // Camera is available and we can set parameters.
 
     protected final CameraView.CameraCallbacks mCameraCallbacks;
-    protected final Preview mPreview;
+    protected CameraPreview mPreview;
 
     protected Facing mFacing;
     protected Flash mFlash;
@@ -39,14 +38,16 @@ abstract class CameraController implements Preview.SurfaceCallback {
 
     protected int mDisplayOffset;
     protected int mDeviceOrientation;
+
+    protected boolean mScheduledForStart = false;
+    protected boolean mScheduledForStop = false;
+    protected boolean mScheduledForRestart = false;
     protected int mState = STATE_STOPPED;
 
     protected WorkerHandler mHandler;
 
-    CameraController(CameraView.CameraCallbacks callback, Preview preview) {
+    CameraController(CameraView.CameraCallbacks callback) {
         mCameraCallbacks = callback;
-        mPreview = preview;
-        mPreview.setSurfaceCallback(this);
         mHandler = WorkerHandler.get("CameraViewController");
         mHandler.getThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
@@ -67,6 +68,11 @@ abstract class CameraController implements Preview.SurfaceCallback {
         });
     }
 
+    void setPreview(CameraPreview cameraPreview) {
+        mPreview = cameraPreview;
+        mPreview.setSurfaceCallback(this);
+    }
+
     //region Start&Stop
 
     private String ss() {
@@ -82,11 +88,13 @@ abstract class CameraController implements Preview.SurfaceCallback {
     // Starts the preview asynchronously.
     final void start() {
         LOG.i("Start:", "posting runnable. State:", ss());
+        mScheduledForStart = true;
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
                     LOG.i("Start:", "executing. State:", ss());
+                    mScheduledForStart = false;
                     if (mState >= STATE_STARTING) return;
                     mState = STATE_STARTING;
                     LOG.i("Start:", "about to call onStart()", ss());
@@ -106,11 +114,13 @@ abstract class CameraController implements Preview.SurfaceCallback {
     // Stops the preview asynchronously.
     final void stop() {
         LOG.i("Stop:", "posting runnable. State:", ss());
+        mScheduledForStop = true;
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
                     LOG.i("Stop:", "executing. State:", ss());
+                    mScheduledForStop = false;
                     if (mState <= STATE_STOPPED) return;
                     mState = STATE_STOPPING;
                     LOG.i("Stop:", "about to call onStop()");
@@ -146,11 +156,13 @@ abstract class CameraController implements Preview.SurfaceCallback {
     // Forces a restart.
     protected final void restart() {
         LOG.i("Restart:", "posting runnable");
+        mScheduledForRestart = true;
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
                     LOG.i("Restart:", "executing. Needs stopping:", mState > STATE_STOPPED, ss());
+                    mScheduledForRestart = false;
                     // Don't stop if stopped.
                     if (mState > STATE_STOPPED) {
                         mState = STATE_STOPPING;

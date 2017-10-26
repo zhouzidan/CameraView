@@ -26,7 +26,7 @@ public class CameraViewTest extends BaseTest {
 
     private CameraView cameraView;
     private MockCameraController mockController;
-    private Preview mockPreview;
+    private CameraPreview mockPreview;
     private boolean hasPermissions;
 
     @Before
@@ -37,14 +37,14 @@ public class CameraViewTest extends BaseTest {
                 Context context = context();
                 cameraView = new CameraView(context) {
                     @Override
-                    protected CameraController instantiateCameraController(CameraCallbacks callbacks, Preview preview) {
-                        mockController = new MockCameraController(callbacks, preview);
+                    protected CameraController instantiateCameraController(CameraCallbacks callbacks) {
+                        mockController = new MockCameraController(callbacks);
                         return mockController;
                     }
 
                     @Override
-                    protected Preview instantiatePreview(Context context, ViewGroup container) {
-                        mockPreview = new MockPreview(context, container);
+                    protected CameraPreview instantiatePreview(Context context, ViewGroup container) {
+                        mockPreview = new MockCameraPreview(context, container);
                         return mockPreview;
                     }
 
@@ -53,6 +53,8 @@ public class CameraViewTest extends BaseTest {
                         return hasPermissions;
                     }
                 };
+                // Instantiate preview now.
+                cameraView.instantiatePreview();
             }
         });
     }
@@ -93,6 +95,7 @@ public class CameraViewTest extends BaseTest {
         // Self managed
         assertEquals(cameraView.getExposureCorrection(), 0f, 0f);
         assertEquals(cameraView.getZoom(), 0f, 0f);
+        assertEquals(cameraView.getPlaySounds(), CameraView.DEFAULT_PLAY_SOUNDS);
         assertEquals(cameraView.getCropOutput(), CameraView.DEFAULT_CROP_OUTPUT);
         assertEquals(cameraView.getJpegQuality(), CameraView.DEFAULT_JPEG_QUALITY);
         assertEquals(cameraView.getGestureAction(Gesture.TAP), GestureAction.DEFAULT_TAP);
@@ -447,6 +450,14 @@ public class CameraViewTest extends BaseTest {
         assertEquals(cameraView.getJpegQuality(), 10);
         cameraView.setJpegQuality(100);
         assertEquals(cameraView.getJpegQuality(), 100);
+    }
+
+    @Test
+    public void testSetPlaySounds() {
+        cameraView.setPlaySounds(true);
+        assertEquals(cameraView.getPlaySounds(), true);
+        cameraView.setPlaySounds(false);
+        assertEquals(cameraView.getPlaySounds(), false);
     }
 
     @Test(expected = IllegalArgumentException.class)
