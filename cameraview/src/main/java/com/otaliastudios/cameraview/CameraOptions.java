@@ -6,6 +6,9 @@ import android.hardware.Camera;
 import android.hardware.camera2.CameraCharacteristics;
 import android.support.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +23,8 @@ public class CameraOptions {
     private Set<Facing> supportedFacing = new HashSet<>(2);
     private Set<Flash> supportedFlash = new HashSet<>(4);
     private Set<Hdr> supportedHdr = new HashSet<>(2);
+    private Set<Size> supportedPictureSizes = new HashSet<>(15);
+    private Set<AspectRatio> supportedPictureAspectRatio = new HashSet<>(4);
 
     private boolean zoomSupported;
     private boolean videoSnapshotSupported;
@@ -31,7 +36,7 @@ public class CameraOptions {
 
     // Camera1 constructor.
     @SuppressWarnings("deprecation")
-    CameraOptions(Camera.Parameters params) {
+    CameraOptions(Camera.Parameters params, boolean flipSizes) {
         List<String> strings;
         Mapper mapper = new Mapper.Mapper1();
 
@@ -80,6 +85,15 @@ public class CameraOptions {
         exposureCorrectionMaxValue = (float) params.getMaxExposureCompensation() * step;
         exposureCorrectionSupported = params.getMinExposureCompensation() != 0
                 || params.getMaxExposureCompensation() != 0;
+
+        // Sizes
+        List<Camera.Size> sizes = params.getSupportedPictureSizes();
+        for (Camera.Size size : sizes) {
+            int width = flipSizes ? size.height : size.width;
+            int height = flipSizes ? size.width : size.height;
+            supportedPictureSizes.add(new Size(width, height));
+            supportedPictureAspectRatio.add(AspectRatio.of(width, height));
+        }
     }
 
 
@@ -89,46 +103,13 @@ public class CameraOptions {
 
 
     /**
-     * Shorthand for getSupportedFacing().contains(value).
+     * Shorthand for getSupported*().contains(value).
      *
-     * @param facing value
+     * @param control value to check
      * @return whether it's supported
      */
-    public boolean supports(Facing facing) {
-        return getSupportedFacing().contains(facing);
-    }
-
-
-    /**
-     * Shorthand for getSupportedFlash().contains(value).
-     *
-     * @param flash value
-     * @return whether it's supported
-     */
-    public boolean supports(Flash flash) {
-        return getSupportedFlash().contains(flash);
-    }
-
-
-    /**
-     * Shorthand for getSupportedWhiteBalance().contains(value).
-     *
-     * @param whiteBalance value
-     * @return whether it's supported
-     */
-    public boolean supports(WhiteBalance whiteBalance) {
-        return getSupportedWhiteBalance().contains(whiteBalance);
-    }
-
-
-    /**
-     * Shorthand for getSupportedHdr().contains(value).
-     *
-     * @param hdr value
-     * @return whether it's supported
-     */
-    public boolean supports(Hdr hdr) {
-        return getSupportedHdr().contains(hdr);
+    public boolean supports(Control control) {
+        return getSupportedControls(control.getClass()).contains(control);
     }
 
 
@@ -156,6 +137,54 @@ public class CameraOptions {
     }
 
 
+    @SuppressWarnings("unchecked")
+    public <T extends Control> Collection<T> getSupportedControls(@NonNull Class<T> controlClass) {
+        if (controlClass.equals(Audio.class)) {
+            return (Collection<T>) Arrays.asList(Audio.values());
+        } else if (controlClass.equals(Facing.class)) {
+            return (Collection<T>) getSupportedFacing();
+        } else if (controlClass.equals(Flash.class)) {
+            return (Collection<T>) getSupportedFlash();
+        } else if (controlClass.equals(Grid.class)) {
+            return (Collection<T>) Arrays.asList(Grid.values());
+        } else if (controlClass.equals(Hdr.class)) {
+            return (Collection<T>) getSupportedHdr();
+        } else if (controlClass.equals(SessionType.class)) {
+            return (Collection<T>) Arrays.asList(SessionType.values());
+        } else if (controlClass.equals(VideoQuality.class)) {
+            return (Collection<T>) Arrays.asList(VideoQuality.values());
+        } else if (controlClass.equals(WhiteBalance.class)) {
+            return (Collection<T>) getSupportedWhiteBalance();
+        }
+        // Unrecognized control.
+        return Collections.emptyList();
+    }
+
+
+    /**
+     * Set of supported picture sizes for the currently opened camera.
+     *
+     * @return a set of supported values.
+     */
+    @NonNull
+    public Set<Size> getSupportedPictureSizes() {
+        // TODO v2: return a Collection
+        return Collections.unmodifiableSet(supportedPictureSizes);
+    }
+
+
+    /**
+     * Set of supported picture aspect ratios for the currently opened camera.
+     *
+     * @return a set of supported values.
+     */
+    @NonNull
+    public Set<AspectRatio> getSupportedPictureAspectRatios() {
+        // TODO v2: return a Collection
+        return Collections.unmodifiableSet(supportedPictureAspectRatio);
+    }
+
+
     /**
      * Set of supported facing values.
      *
@@ -165,6 +194,7 @@ public class CameraOptions {
      */
     @NonNull
     public Set<Facing> getSupportedFacing() {
+        // TODO v2: return a Collection
         return Collections.unmodifiableSet(supportedFacing);
     }
 
@@ -180,6 +210,7 @@ public class CameraOptions {
      */
     @NonNull
     public Set<Flash> getSupportedFlash() {
+        // TODO v2: return a Collection
         return Collections.unmodifiableSet(supportedFlash);
     }
 
@@ -196,6 +227,7 @@ public class CameraOptions {
      */
     @NonNull
     public Set<WhiteBalance> getSupportedWhiteBalance() {
+        // TODO v2: return a Collection
         return Collections.unmodifiableSet(supportedWhiteBalance);
     }
 
@@ -209,6 +241,7 @@ public class CameraOptions {
      */
     @NonNull
     public Set<Hdr> getSupportedHdr() {
+        // TODO v2: return a Collection
         return Collections.unmodifiableSet(supportedHdr);
     }
 

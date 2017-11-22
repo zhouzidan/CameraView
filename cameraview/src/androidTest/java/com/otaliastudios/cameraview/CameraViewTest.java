@@ -3,6 +3,7 @@ package com.otaliastudios.cameraview;
 
 import android.content.Context;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.MotionEvent;
@@ -12,6 +13,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -75,7 +78,7 @@ public class CameraViewTest extends BaseTest {
         assertNull(cameraView.getCameraOptions());
         assertNull(cameraView.getExtraProperties());
         assertNull(cameraView.getPreviewSize());
-        assertNull(cameraView.getCaptureSize());
+        assertNull(cameraView.getPictureSize());
         assertNull(cameraView.getSnapshotSize());
     }
 
@@ -91,10 +94,10 @@ public class CameraViewTest extends BaseTest {
         assertEquals(cameraView.getAudio(), Audio.DEFAULT);
         assertEquals(cameraView.getVideoQuality(), VideoQuality.DEFAULT);
         assertEquals(cameraView.getLocation(), null);
-
-        // Self managed
         assertEquals(cameraView.getExposureCorrection(), 0f, 0f);
         assertEquals(cameraView.getZoom(), 0f, 0f);
+
+        // Self managed
         assertEquals(cameraView.getPlaySounds(), CameraView.DEFAULT_PLAY_SOUNDS);
         assertEquals(cameraView.getCropOutput(), CameraView.DEFAULT_CROP_OUTPUT);
         assertEquals(cameraView.getJpegQuality(), CameraView.DEFAULT_JPEG_QUALITY);
@@ -381,6 +384,7 @@ public class CameraViewTest extends BaseTest {
 
     //region testLocation
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void testSetLocation() {
         cameraView.setLocation(50d, -50d);
@@ -467,34 +471,23 @@ public class CameraViewTest extends BaseTest {
 
     @Test
     public void testSetFlash() {
-        cameraView.setFlash(Flash.TORCH);
+        cameraView.set(Flash.TORCH);
         assertEquals(cameraView.getFlash(), Flash.TORCH);
-        cameraView.setFlash(Flash.OFF);
-        assertEquals(cameraView.getFlash(), Flash.OFF);
-    }
-
-    @Test
-    public void testToggleFlash() {
-        cameraView.setFlash(Flash.OFF);
-        cameraView.toggleFlash();
-        assertEquals(cameraView.getFlash(), Flash.ON);
-        cameraView.toggleFlash();
-        assertEquals(cameraView.getFlash(), Flash.AUTO);
-        cameraView.toggleFlash();
+        cameraView.set(Flash.OFF);
         assertEquals(cameraView.getFlash(), Flash.OFF);
     }
 
     @Test
     public void testSetFacing() {
-        cameraView.setFacing(Facing.FRONT);
+        cameraView.set(Facing.FRONT);
         assertEquals(cameraView.getFacing(), Facing.FRONT);
-        cameraView.setFacing(Facing.BACK);
+        cameraView.set(Facing.BACK);
         assertEquals(cameraView.getFacing(), Facing.BACK);
     }
 
     @Test
     public void testToggleFacing() {
-        cameraView.setFacing(Facing.FRONT);
+        cameraView.set(Facing.FRONT);
         cameraView.toggleFacing();
         assertEquals(cameraView.getFacing(), Facing.BACK);
         cameraView.toggleFacing();
@@ -503,50 +496,121 @@ public class CameraViewTest extends BaseTest {
 
     @Test
     public void testSetGrid() {
-        cameraView.setGrid(Grid.DRAW_3X3);
+        cameraView.set(Grid.DRAW_3X3);
         assertEquals(cameraView.getGrid(), Grid.DRAW_3X3);
-        cameraView.setGrid(Grid.OFF);
+        cameraView.set(Grid.OFF);
         assertEquals(cameraView.getGrid(), Grid.OFF);
     }
 
     @Test
     public void testSetWhiteBalance() {
-        cameraView.setWhiteBalance(WhiteBalance.CLOUDY);
+        cameraView.set(WhiteBalance.CLOUDY);
         assertEquals(cameraView.getWhiteBalance(), WhiteBalance.CLOUDY);
-        cameraView.setWhiteBalance(WhiteBalance.AUTO);
+        cameraView.set(WhiteBalance.AUTO);
         assertEquals(cameraView.getWhiteBalance(), WhiteBalance.AUTO);
     }
 
     @Test
     public void testSessionType() {
-        cameraView.setSessionType(SessionType.VIDEO);
+        cameraView.set(SessionType.VIDEO);
         assertEquals(cameraView.getSessionType(), SessionType.VIDEO);
-        cameraView.setSessionType(SessionType.PICTURE);
+        cameraView.set(SessionType.PICTURE);
         assertEquals(cameraView.getSessionType(), SessionType.PICTURE);
     }
 
     @Test
     public void testHdr() {
-        cameraView.setHdr(Hdr.ON);
+        cameraView.set(Hdr.ON);
         assertEquals(cameraView.getHdr(), Hdr.ON);
-        cameraView.setHdr(Hdr.OFF);
+        cameraView.set(Hdr.OFF);
         assertEquals(cameraView.getHdr(), Hdr.OFF);
     }
 
     @Test
     public void testAudio() {
-        cameraView.setAudio(Audio.ON);
+        cameraView.set(Audio.ON);
         assertEquals(cameraView.getAudio(), Audio.ON);
-        cameraView.setAudio(Audio.OFF);
+        cameraView.set(Audio.OFF);
         assertEquals(cameraView.getAudio(), Audio.OFF);
     }
 
     @Test
     public void testVideoQuality() {
-        cameraView.setVideoQuality(VideoQuality.MAX_1080P);
+        cameraView.set(VideoQuality.MAX_1080P);
         assertEquals(cameraView.getVideoQuality(), VideoQuality.MAX_1080P);
-        cameraView.setVideoQuality(VideoQuality.LOWEST);
+        cameraView.set(VideoQuality.LOWEST);
         assertEquals(cameraView.getVideoQuality(), VideoQuality.LOWEST);
+    }
+
+    @Test
+    public void testPictureSizeSelector() {
+        SizeSelector source = SizeSelectors.minHeight(50);
+        cameraView.setPictureSize(source);
+        SizeSelector result = mockController.getPictureSizeSelector();
+        assertNotNull(result);
+        assertEquals(result, source);
+    }
+
+    //endregion
+
+    //region Lists of listeners and processors
+
+    @SuppressWarnings("UseBulkOperation")
+    @Test
+    public void testCameraListenerList() {
+        assertTrue(cameraView.mListeners.isEmpty());
+
+        CameraListener listener = new CameraListener() {};
+        cameraView.addCameraListener(listener);
+        assertEquals(cameraView.mListeners.size(), 1);
+
+        cameraView.removeCameraListener(listener);
+        assertEquals(cameraView.mListeners.size(), 0);
+
+        cameraView.addCameraListener(listener);
+        cameraView.addCameraListener(listener);
+        assertEquals(cameraView.mListeners.size(), 2);
+
+        cameraView.clearCameraListeners();
+        assertTrue(cameraView.mListeners.isEmpty());
+
+        // Ensure this does not throw a ConcurrentModificationException
+        cameraView.addCameraListener(new CameraListener() {});
+        cameraView.addCameraListener(new CameraListener() {});
+        cameraView.addCameraListener(new CameraListener() {});
+        for (CameraListener test : cameraView.mListeners) {
+            cameraView.mListeners.remove(test);
+        }
+    }
+
+    @SuppressWarnings({"NullableProblems", "UseBulkOperation"})
+    @Test
+    public void testFrameProcessorsList() {
+        assertTrue(cameraView.mFrameProcessors.isEmpty());
+
+        FrameProcessor processor = new FrameProcessor() {
+            public void process(@NonNull Frame frame) {}
+        };
+        cameraView.addFrameProcessor(processor);
+        assertEquals(cameraView.mFrameProcessors.size(), 1);
+
+        cameraView.removeFrameProcessor(processor);
+        assertEquals(cameraView.mFrameProcessors.size(), 0);
+
+        cameraView.addFrameProcessor(processor);
+        cameraView.addFrameProcessor(processor);
+        assertEquals(cameraView.mFrameProcessors.size(), 2);
+
+        cameraView.clearFrameProcessors();
+        assertTrue(cameraView.mFrameProcessors.isEmpty());
+
+        // Ensure this does not throw a ConcurrentModificationException
+        cameraView.addFrameProcessor(new FrameProcessor() { public void process(Frame f) {} });
+        cameraView.addFrameProcessor(new FrameProcessor() { public void process(Frame f) {} });
+        cameraView.addFrameProcessor(new FrameProcessor() { public void process(Frame f) {} });
+        for (FrameProcessor test : cameraView.mFrameProcessors) {
+            cameraView.mFrameProcessors.remove(test);
+        }
     }
 
     //endregion
