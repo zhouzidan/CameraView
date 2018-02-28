@@ -80,7 +80,7 @@ See below for a [list of what was done](#roadmap) and [licensing info](#contribu
 - [Permissions Behavior](#permissions-behavior)
 - [Logging](#logging)
 - [Device-specific issues](#device-specific-issues)
-- [Roadmap](#roadmap)
+- [Contributing](#contributing-and-licenses)
 
 ## Usage
 
@@ -682,49 +682,6 @@ the most tricky in this sense.
   deal with all we want to do here (runtime layout changes, scaling, etc.). So, nothing to do in this case.
 - Devices with no support for MediaRecorder: the emulator does not support it, officially. This means
   that video/audio recording is flawed. Again, not our fault.
-
-## Roadmap
-
-This is what was done since the library was forked. I have kept the original structure, but practically
-all the code was changed.
-
-- *a huge number of serious bugs fixed*
-- *decent orientation support for both pictures and videos*
-- *less dependencies*
-- *EXIF support*
-- *real tap-to-focus support*
-- *pinch-to-zoom support*
-- *simpler APIs, docs and heavily commented code*
-- *new `captureSnapshot` API*
-- *new `setLocation` and `setWhiteBalance` APIs*
-- *new `setGrid` APIs, to draw 3x3, 4x4 or golden ratio grids*
-- *option to pass a `File` when recording a video*
-- *other minor API additions*
-- *replacing Method and Permissions stuff with simpler `sessionType`* 
-- *smart measuring and sizing behavior, replacing bugged `adjustViewBounds`*
-- *measure `CameraView` as center crop or center inside*
-- *add multiple `CameraListener`s for events*
-- *gesture framework support, map gestures to camera controls*
-- *pinch gesture support*
-- *tap & long tap gesture support*
-- *scroll gestures support*
-- *MediaActionSound support*
-- *Hdr controls*
-- *zoom and exposure correction controls*
-- *Tests!*
-- *`CameraLogger` APIs for logging and bug reports*
-- *Better threading, start() in worker thread and callbacks in UI*
-- *Frame processor support*
-- *inject external loggers*
-- *error handling*
-- *capture size selectors*
-
-These are still things that need to be done, off the top of my head:
-
-- [ ] `Camera2` integration
-- [ ] animate grid lines similar to stock camera app
-- [ ] add onRequestPermissionResults for easy permission callback
-- [ ] decent code coverage
 
 # Contributing and licenses
 
