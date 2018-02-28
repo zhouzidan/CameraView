@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/natario1/CameraView.svg?branch=master)](https://travis-ci.org/natario1/CameraView)
 [![Code Coverage](https://codecov.io/gh/natario1/CameraView/branch/master/graph/badge.svg)](https://codecov.io/gh/natario1/CameraView)
+[![OpenCollective Backers](https://opencollective.com/cameraview/backers/badge.svg)](#backers)
+[![OpenCollective Sponsors](https://opencollective.com/cameraview/sponsors/badge.svg)](#sponsors)
 
 <p align="center">
   <img src="art/icon.png" vspace="10" width="250" height="250">
@@ -15,7 +17,7 @@ See [CHANGELOG](https://github.com/natario1/CameraView/blob/master/CHANGELOG.md)
 compile 'com.otaliastudios:cameraview:1.4.2'
 ```
 
-Make sure your project repositories include the `jcenter()`:
+Make sure your project repositories include jcenter:
 
 ```groovy
 allprojects {
@@ -734,3 +736,25 @@ license as well.
 
 You are welcome to contribute with suggestions or pull requests, this is under active development.
 To contact me, <a href="mailto:mat.iavarone@gmail.com">send an email.</a>
+
+## Backers
+
+Thank you to all our backers! [Become a backer.](https://opencollective.com/cameraview#backer)
+
+<a href="https://opencollective.com/cameraview#backers" target="_blank"><img src="https://opencollective.com/cameraview/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+You can support this project by becoming a sponsor. Your logo will show up here with a link to your website. [Become a sponsor.](https://opencollective.com/cameraview#sponsor)
+
+<a href="https://opencollective.com/cameraview/sponsor/0/website" target="_blank"><img src="https://opencollective.com/cameraview/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/cameraview/sponsor/1/website" target="_blank"><img src="https://opencollective.com/cameraview/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/cameraview/sponsor/2/website" target="_blank"><img src="https://opencollective.com/cameraview/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/cameraview/sponsor/3/website" target="_blank"><img src="https://opencollective.com/cameraview/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/cameraview/sponsor/4/website" target="_blank"><img src="https://opencollective.com/cameraview/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/cameraview/sponsor/5/website" target="_blank"><img src="https://opencollective.com/cameraview/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/cameraview/sponsor/6/website" target="_blank"><img src="https://opencollective.com/cameraview/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/cameraview/sponsor/7/website" target="_blank"><img src="https://opencollective.com/cameraview/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/cameraview/sponsor/8/website" target="_blank"><img src="https://opencollective.com/cameraview/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/cameraview/sponsor/9/website" target="_blank"><img src="https://opencollective.com/cameraview/sponsor/9/avatar.svg"></a>
