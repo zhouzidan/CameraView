@@ -692,11 +692,14 @@ Additional work is now licensed under the [MIT](https://github.com/natario1/Came
 license as well.
 
 You are welcome to contribute with suggestions or pull requests, this is under active development.
-To contact me, <a href="mailto:mat.iavarone@gmail.com">send an email.</a>
+To contact the maintainer, <a href="mailto:mat.iavarone@gmail.com">send an email.</a>
+
+If you don't want to get involved but would like to support the project, please consider a donation
+to our [Open Collective](https://opencollective.com/cameraview/donate).
 
 ## Backers
 
-Thank you to all our backers! [Become a backer.](https://opencollective.com/cameraview#backer)
+Thanks to all our backers! [Become a backer.](https://opencollective.com/cameraview#backer)
 
 <a href="https://opencollective.com/cameraview#backers" target="_blank"><img src="https://opencollective.com/cameraview/backers.svg?width=890"></a>
 
