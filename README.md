@@ -689,11 +689,9 @@ The original project which served as a starting point for this library,
 [CameraKit-Android](https://github.com/wonderkiln/CameraKit-Android), is licensed under the
 [MIT](https://github.com/wonderkiln/CameraKit-Android/blob/master/LICENSE) license.
 Additional work is now licensed under the [MIT](https://github.com/natario1/CameraView/blob/master/LICENSE)
-license as well.
+license as well. To contact the maintainer, <a href="mailto:mat.iavarone@gmail.com">send an email.</a>
 
 You are welcome to contribute with suggestions or pull requests, this is under active development.
-To contact the maintainer, <a href="mailto:mat.iavarone@gmail.com">send an email.</a>
-
 If you don't want to get involved but would like to support the project, please consider a donation
 to our [Open Collective](https://opencollective.com/cameraview/donate).
 
