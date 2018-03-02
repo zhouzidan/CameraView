@@ -1168,7 +1168,7 @@ public class CameraView extends FrameLayout {
         final int old = getVideoMaxDuration();
         addCameraListener(new CameraListener() {
             @Override
-            public void onVideoTaken(File video) {
+            public void onVideoTaken(VideoResult result) {
                 setVideoMaxDuration(old);
                 removeCameraListener(this);
             }
@@ -1183,7 +1183,7 @@ public class CameraView extends FrameLayout {
 
     /**
      * Stops capturing video, if there was a video record going on.
-     * This will fire {@link CameraListener#onVideoTaken(File)}.
+     * This will fire {@link CameraListener#onVideoTaken(VideoResult)}.
      */
     public void stopVideo() {
         mCameraController.stopVideo();
@@ -1368,7 +1368,7 @@ public class CameraView extends FrameLayout {
         void onShutter(boolean shouldPlaySound);
         void processPicture(byte[] jpeg, boolean consistentWithView, boolean flipHorizontally);
         void processSnapshot(YuvImage image, boolean consistentWithView, boolean flipHorizontally);
-        void dispatchOnVideoTaken(File file);
+        void dispatchOnVideoTaken(VideoResult result);
         void dispatchOnFocusStart(@Nullable Gesture trigger, PointF where);
         void dispatchOnFocusEnd(@Nullable Gesture trigger, boolean success, PointF where);
         void dispatchOnZoomChanged(final float newValue, final PointF[] fingers);
@@ -1494,7 +1494,7 @@ public class CameraView extends FrameLayout {
         }
 
         @Override
-        public void dispatchOnVideoTaken(final File video) {
+        public void dispatchOnVideoTaken(final VideoResult video) {
             mLogger.i("dispatchOnVideoTaken", video);
             mUiHandler.post(new Runnable() {
                 @Override
