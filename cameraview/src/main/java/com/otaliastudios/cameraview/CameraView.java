@@ -485,7 +485,7 @@ public class CameraView extends FrameLayout {
         switch (action) {
 
             case CAPTURE:
-                mCameraController.capturePicture();
+                mCameraController.takePicture();
                 break;
 
             case FOCUS:
@@ -968,8 +968,8 @@ public class CameraView extends FrameLayout {
     /**
      * Set the current session type to either picture or video.
      * When sessionType is video,
-     * - {@link #startCapturingVideo(File)} will not throw any exception
-     * - {@link #capturePicture()} might fallback to {@link #captureSnapshot()} or might not work
+     * - {@link #takeVideo(File)} will not throw any exception
+     * - {@link #takePicture()} might fallback to {@link #takePictureSnapshot()} or might not work
      *
      * @see SessionType#PICTURE
      * @see SessionType#VIDEO
@@ -1047,20 +1047,6 @@ public class CameraView extends FrameLayout {
 
 
     /**
-     * Sets a {@link CameraListener} instance to be notified of all
-     * interesting events that will happen during the camera lifecycle.
-     *
-     * @param cameraListener a listener for events.
-     * @deprecated use {@link #addCameraListener(CameraListener)} instead.
-     */
-    @Deprecated
-    public void setCameraListener(CameraListener cameraListener) {
-        mListeners.clear();
-        addCameraListener(cameraListener);
-    }
-
-
-    /**
      * Adds a {@link CameraListener} instance to be notified of all
      * interesting events that happen during the camera lifecycle.
      *
@@ -1134,12 +1120,12 @@ public class CameraView extends FrameLayout {
      * was registered.
      *
      * Note that if sessionType is {@link SessionType#VIDEO}, this
-     * might fall back to {@link #captureSnapshot()} (that is, we might capture a preview frame).
+     * might fall back to {@link #takePictureSnapshot()} (that is, we might capture a preview frame).
      *
-     * @see #captureSnapshot()
+     * @see #takePictureSnapshot()
      */
-    public void capturePicture() {
-        mCameraController.capturePicture();
+    public void takePicture() {
+        mCameraController.takePicture();
     }
 
 
@@ -1148,25 +1134,13 @@ public class CameraView extends FrameLayout {
      * This eventually triggers {@link CameraListener#onPictureTaken(byte[])} if a listener
      * was registered.
      *
-     * The difference with {@link #capturePicture()} is that this capture is faster, so it might be
+     * The difference with {@link #takePicture()} is that this capture is faster, so it might be
      * better on slower cameras, though the result can be generally blurry or low quality.
      *
-     * @see #capturePicture()
+     * @see #takePicture()
      */
-    public void captureSnapshot() {
-        mCameraController.captureSnapshot();
-    }
-
-
-    /**
-     * Starts recording a video, in a file called "video.mp4" in the default folder.
-     * This is discouraged, please use {@link #startCapturingVideo(File)} instead.
-     *
-     * @deprecated see {@link #startCapturingVideo(File)}
-     */
-    @Deprecated
-    public void startCapturingVideo() {
-        startCapturingVideo(null);
+    public void takePictureSnapshot() {
+        mCameraController.takePictureSnapshot();
     }
 
 
@@ -1176,11 +1150,11 @@ public class CameraView extends FrameLayout {
      *
      * @param file a file where the video will be saved
      */
-    public void startCapturingVideo(File file) {
+    public void takeVideo(File file) {
         if (file == null) {
             file = new File(getContext().getFilesDir(), "video.mp4");
         }
-        mCameraController.startVideo(file);
+        mCameraController.takeVideo(file);
         mUiHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -1200,11 +1174,8 @@ public class CameraView extends FrameLayout {
      * @param file a file where the video will be saved
      * @param durationMillis recording max duration
      *
-     * @deprecated use {@link #setVideoMaxDuration(int)} instead.
      */
-    @Deprecated
-    public void startCapturingVideo(File file, long durationMillis) {
-        // TODO: v2: change signature to int, or remove (better).
+    public void takeVideo(File file, int durationMillis) {
         final int old = getVideoMaxDuration();
         addCameraListener(new CameraListener() {
             @Override
@@ -1213,8 +1184,8 @@ public class CameraView extends FrameLayout {
                 removeCameraListener(this);
             }
         });
-        setVideoMaxDuration((int) durationMillis);
-        startCapturingVideo(file);
+        setVideoMaxDuration(durationMillis);
+        takeVideo(file);
     }
 
 
@@ -1225,8 +1196,8 @@ public class CameraView extends FrameLayout {
      * Stops capturing video, if there was a video record going on.
      * This will fire {@link CameraListener#onVideoTaken(File)}.
      */
-    public void stopCapturingVideo() {
-        mCameraController.endVideo();
+    public void stopVideo() {
+        mCameraController.stopVideo();
         mUiHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -1239,6 +1210,8 @@ public class CameraView extends FrameLayout {
     /**
      * Returns the size used for the preview,
      * or null if it hasn't been computed (for example if the surface is not ready).
+     * This is the size of snapshots.
+     *
      * @return a Size
      */
     @Nullable
@@ -1250,23 +1223,12 @@ public class CameraView extends FrameLayout {
     /**
      * Returns the size used for the capture,
      * or null if it hasn't been computed yet (for example if the surface is not ready).
+     *
      * @return a Size
      */
     @Nullable
     public Size getPictureSize() {
         return mCameraController != null ? mCameraController.getPictureSize() : null;
-    }
-
-
-    /**
-     * Returns the size used for capturing snapshots.
-     * This is equal to {@link #getPreviewSize()}.
-     *
-     * @return a Size
-     */
-    @Nullable
-    public Size getSnapshotSize() {
-        return getPreviewSize();
     }
 
 
@@ -1415,7 +1377,7 @@ public class CameraView extends FrameLayout {
         void dispatchOnCameraClosed();
         void onCameraPreviewSizeChanged();
         void onShutter(boolean shouldPlaySound);
-        void processImage(byte[] jpeg, boolean consistentWithView, boolean flipHorizontally);
+        void processPicture(byte[] jpeg, boolean consistentWithView, boolean flipHorizontally);
         void processSnapshot(YuvImage image, boolean consistentWithView, boolean flipHorizontally);
         void dispatchOnVideoTaken(File file);
         void dispatchOnFocusStart(@Nullable Gesture trigger, PointF where);
@@ -1499,8 +1461,8 @@ public class CameraView extends FrameLayout {
          *                         because it was taken with the front camera.
          */
         @Override
-        public void processImage(final byte[] jpeg, final boolean consistentWithView, final boolean flipHorizontally) {
-            mLogger.i("processImage");
+        public void processPicture(final byte[] jpeg, final boolean consistentWithView, final boolean flipHorizontally) {
+            mLogger.i("processPicture");
             dispatchOnPictureTaken(jpeg);
             // TODO: remove.
         }
@@ -1675,36 +1637,6 @@ public class CameraView extends FrameLayout {
     //endregion
 
     //region deprecated APIs
-
-    /**
-     * @deprecated use {@link #getPictureSize()} instead.
-     */
-    @Deprecated
-    @Nullable
-    public Size getCaptureSize() {
-        return getPictureSize();
-    }
-
-    /**
-     * Toggles the flash mode between {@link Flash#OFF},
-     * {@link Flash#ON} and {@link Flash#AUTO}, in this order.
-     *
-     * @deprecated Don't use this. Flash values might not be supported,
-     *             and the return value is unreliable.
-     *
-     * @return the new flash value
-     */
-    @Deprecated
-    public Flash toggleFlash() {
-        Flash flash = mCameraController.getFlash();
-        switch (flash) {
-            case OFF: setFlash(Flash.ON); break;
-            case ON: setFlash(Flash.AUTO); break;
-            case AUTO: case TORCH: setFlash(Flash.OFF); break;
-        }
-        return mCameraController.getFlash();
-    }
-
 
     /* for tests */int getCameraId(){
         return mCameraController.mCameraId;
