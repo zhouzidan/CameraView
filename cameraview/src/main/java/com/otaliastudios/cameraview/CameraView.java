@@ -45,12 +45,10 @@ public class CameraView extends FrameLayout {
 
     public final static int PERMISSION_REQUEST_CODE = 16;
 
-    final static int DEFAULT_JPEG_QUALITY = 100;
     final static boolean DEFAULT_CROP_OUTPUT = false;
     final static boolean DEFAULT_PLAY_SOUNDS = true;
 
     // Self managed parameters
-    private int mJpegQuality;
     private boolean mCropOutput;
     private boolean mPlaySounds;
     private HashMap<Gesture, GestureAction> mGestureMap = new HashMap<>(4);
@@ -94,7 +92,6 @@ public class CameraView extends FrameLayout {
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.CameraView, 0, 0);
 
         // Self managed
-        int jpegQuality = a.getInteger(R.styleable.CameraView_cameraJpegQuality, DEFAULT_JPEG_QUALITY);
         boolean cropOutput = a.getBoolean(R.styleable.CameraView_cameraCropOutput, DEFAULT_CROP_OUTPUT);
         boolean playSounds = a.getBoolean(R.styleable.CameraView_cameraPlaySounds, DEFAULT_PLAY_SOUNDS);
 
@@ -169,7 +166,6 @@ public class CameraView extends FrameLayout {
 
         // Apply self managed
         setCropOutput(cropOutput);
-        setJpegQuality(jpegQuality);
         setPlaySounds(playSounds);
 
         // Apply camera controller params
@@ -1054,27 +1050,6 @@ public class CameraView extends FrameLayout {
 
 
     /**
-     * Sets the JPEG compression quality for image outputs.
-     * @param jpegQuality a 0-100 integer.
-     */
-    public void setJpegQuality(int jpegQuality) {
-        if (jpegQuality <= 0 || jpegQuality > 100) {
-            throw new IllegalArgumentException("JPEG quality should be > 0 and <= 100");
-        }
-        mJpegQuality = jpegQuality;
-    }
-
-
-    /**
-     * Gets the JPEG compression quality for image outputs.
-     * @return a 0-100 integer
-     */
-    public int getJpegQuality() {
-        return mJpegQuality;
-    }
-
-
-    /**
      * Whether we should crop the picture output to match CameraView aspect ratio.
      * This is only relevant if CameraView dimensions were somehow constrained
      * (e.g. by fixed value or MATCH_PARENT) and do not match internal aspect ratio.
@@ -1566,7 +1541,7 @@ public class CameraView extends FrameLayout {
                         AspectRatio targetRatio = AspectRatio.of(w, h);
                         mLogger.i("processImage", "is consistent?", consistentWithView);
                         mLogger.i("processImage", "viewWidth?", getWidth(), "viewHeight?", getHeight());
-                        jpeg2 = CropHelper.cropToJpeg(jpeg, targetRatio, mJpegQuality);
+                        jpeg2 = CropHelper.cropToJpeg(jpeg, targetRatio, 100);
                     }
                     dispatchOnPictureTaken(jpeg2);
                 }
@@ -1586,10 +1561,10 @@ public class CameraView extends FrameLayout {
                         AspectRatio targetRatio = AspectRatio.of(w, h);
                         mLogger.i("processSnapshot", "is consistent?", consistentWithView);
                         mLogger.i("processSnapshot", "viewWidth?", getWidth(), "viewHeight?", getHeight());
-                        jpeg = CropHelper.cropToJpeg(yuv, targetRatio, mJpegQuality);
+                        jpeg = CropHelper.cropToJpeg(yuv, targetRatio, 100);
                     } else {
                         ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        yuv.compressToJpeg(new Rect(0, 0, yuv.getWidth(), yuv.getHeight()), mJpegQuality, out);
+                        yuv.compressToJpeg(new Rect(0, 0, yuv.getWidth(), yuv.getHeight()), 100, out);
                         jpeg = out.toByteArray();
                     }
                     dispatchOnPictureTaken(jpeg);

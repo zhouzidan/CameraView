@@ -397,7 +397,6 @@ Most camera parameters can be controlled through XML attributes or linked method
     app:cameraGrid="off"
     app:cameraSessionType="picture"
     app:cameraCropOutput="false"  
-    app:cameraJpegQuality="100"
     app:cameraVideoQuality="480p"
     app:cameraVideoCodec="deviceDefault"
     app:cameraWhiteBalance="auto"
@@ -415,7 +414,6 @@ Most camera parameters can be controlled through XML attributes or linked method
 |[`cameraFlash`](#cameraflash)|`setFlash()`|`off` `on` `auto` `torch`|`off`|
 |[`cameraGrid`](#cameragrid)|`setGrid()`|`off` `draw3x3` `draw4x4` `drawPhi`|`off`|
 |[`cameraCropOutput`](#cameracropoutput)|`setCropOutput()`|`true` `false`|`false`|
-|[`cameraJpegQuality`](#camerajpegquality)|`setJpegQuality()`|`0 < n <= 100`|`100`|
 |[`cameraVideoQuality`](#cameravideoquality)|`setVideoQuality()`|`lowest` `highest` `maxQvga` `max480p` `max720p` `max1080p` `max2160p`|`max480p`|
 |[`cameraVideoCodec`](#cameravideocodec)|`setVideoCodec()`|`deviceDefault` `h263` `h264`|`deviceDefault`|
 |[`cameraWhiteBalance`](#camerawhitebalance)|`setWhiteBalance()`|`auto` `incandescent` `fluorescent` `daylight` `cloudy`|`auto`|
@@ -482,15 +480,6 @@ cameraView.setGrid(Grid.DRAW_PHI);
 Whether the output picture should be cropped to fit the aspect ratio of the preview surface.
 This can guarantee consistency between what the user sees and the final output, if you fixed
 the camera view dimensions. This does not support videos.
-
-#### cameraJpegQuality
-
-Sets the JPEG quality of pictures.
-
-```java
-cameraView.setJpegQuality(100);
-cameraView.setJpegQuality(50);
-```
 
 #### cameraVideoQuality
 
