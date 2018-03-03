@@ -101,34 +101,64 @@ public class CameraView extends FrameLayout {
         long videoMaxSize = (long) a.getFloat(R.styleable.CameraView_cameraVideoMaxSize, 0);
         int videoMaxDuration = a.getInteger(R.styleable.CameraView_cameraVideoMaxDuration, 0);
 
-        // Size selectors
-        List<SizeSelector> constraints = new ArrayList<>(3);
+        // Picture size selector
+        List<SizeSelector> pictureConstraints = new ArrayList<>(3);
         if (a.hasValue(R.styleable.CameraView_cameraPictureSizeMinWidth)) {
-            constraints.add(SizeSelectors.minWidth(a.getInteger(R.styleable.CameraView_cameraPictureSizeMinWidth, 0)));
+            pictureConstraints.add(SizeSelectors.minWidth(a.getInteger(R.styleable.CameraView_cameraPictureSizeMinWidth, 0)));
         }
         if (a.hasValue(R.styleable.CameraView_cameraPictureSizeMaxWidth)) {
-            constraints.add(SizeSelectors.maxWidth(a.getInteger(R.styleable.CameraView_cameraPictureSizeMaxWidth, 0)));
+            pictureConstraints.add(SizeSelectors.maxWidth(a.getInteger(R.styleable.CameraView_cameraPictureSizeMaxWidth, 0)));
         }
         if (a.hasValue(R.styleable.CameraView_cameraPictureSizeMinHeight)) {
-            constraints.add(SizeSelectors.minHeight(a.getInteger(R.styleable.CameraView_cameraPictureSizeMinHeight, 0)));
+            pictureConstraints.add(SizeSelectors.minHeight(a.getInteger(R.styleable.CameraView_cameraPictureSizeMinHeight, 0)));
         }
         if (a.hasValue(R.styleable.CameraView_cameraPictureSizeMaxHeight)) {
-            constraints.add(SizeSelectors.maxHeight(a.getInteger(R.styleable.CameraView_cameraPictureSizeMaxHeight, 0)));
+            pictureConstraints.add(SizeSelectors.maxHeight(a.getInteger(R.styleable.CameraView_cameraPictureSizeMaxHeight, 0)));
         }
         if (a.hasValue(R.styleable.CameraView_cameraPictureSizeMinArea)) {
-            constraints.add(SizeSelectors.minArea(a.getInteger(R.styleable.CameraView_cameraPictureSizeMinArea, 0)));
+            pictureConstraints.add(SizeSelectors.minArea(a.getInteger(R.styleable.CameraView_cameraPictureSizeMinArea, 0)));
         }
         if (a.hasValue(R.styleable.CameraView_cameraPictureSizeMaxArea)) {
-            constraints.add(SizeSelectors.maxArea(a.getInteger(R.styleable.CameraView_cameraPictureSizeMaxArea, 0)));
+            pictureConstraints.add(SizeSelectors.maxArea(a.getInteger(R.styleable.CameraView_cameraPictureSizeMaxArea, 0)));
         }
         if (a.hasValue(R.styleable.CameraView_cameraPictureSizeAspectRatio)) {
             //noinspection ConstantConditions
-            constraints.add(SizeSelectors.aspectRatio(AspectRatio.parse(a.getString(R.styleable.CameraView_cameraPictureSizeAspectRatio)), 0));
+            pictureConstraints.add(SizeSelectors.aspectRatio(AspectRatio.parse(a.getString(R.styleable.CameraView_cameraPictureSizeAspectRatio)), 0));
         }
-        if (a.getBoolean(R.styleable.CameraView_cameraPictureSizeSmallest, false)) constraints.add(SizeSelectors.smallest());
-        if (a.getBoolean(R.styleable.CameraView_cameraPictureSizeBiggest, false)) constraints.add(SizeSelectors.biggest());
-        SizeSelector selector = !constraints.isEmpty() ?
-                SizeSelectors.and(constraints.toArray(new SizeSelector[constraints.size()])) :
+        if (a.getBoolean(R.styleable.CameraView_cameraPictureSizeSmallest, false)) pictureConstraints.add(SizeSelectors.smallest());
+        if (a.getBoolean(R.styleable.CameraView_cameraPictureSizeBiggest, false)) pictureConstraints.add(SizeSelectors.biggest());
+        SizeSelector pictureSelector = !pictureConstraints.isEmpty() ?
+                SizeSelectors.and(pictureConstraints.toArray(new SizeSelector[pictureConstraints.size()])) :
+                SizeSelectors.biggest();
+
+        // Video size selector
+        List<SizeSelector> videoConstraints = new ArrayList<>(3);
+        if (a.hasValue(R.styleable.CameraView_cameraVideoSizeMinWidth)) {
+            videoConstraints.add(SizeSelectors.minWidth(a.getInteger(R.styleable.CameraView_cameraVideoSizeMinWidth, 0)));
+        }
+        if (a.hasValue(R.styleable.CameraView_cameraVideoSizeMaxWidth)) {
+            videoConstraints.add(SizeSelectors.maxWidth(a.getInteger(R.styleable.CameraView_cameraVideoSizeMaxWidth, 0)));
+        }
+        if (a.hasValue(R.styleable.CameraView_cameraVideoSizeMinHeight)) {
+            videoConstraints.add(SizeSelectors.minHeight(a.getInteger(R.styleable.CameraView_cameraVideoSizeMinHeight, 0)));
+        }
+        if (a.hasValue(R.styleable.CameraView_cameraVideoSizeMaxHeight)) {
+            videoConstraints.add(SizeSelectors.maxHeight(a.getInteger(R.styleable.CameraView_cameraVideoSizeMaxHeight, 0)));
+        }
+        if (a.hasValue(R.styleable.CameraView_cameraVideoSizeMinArea)) {
+            videoConstraints.add(SizeSelectors.minArea(a.getInteger(R.styleable.CameraView_cameraVideoSizeMinArea, 0)));
+        }
+        if (a.hasValue(R.styleable.CameraView_cameraVideoSizeMaxArea)) {
+            videoConstraints.add(SizeSelectors.maxArea(a.getInteger(R.styleable.CameraView_cameraVideoSizeMaxArea, 0)));
+        }
+        if (a.hasValue(R.styleable.CameraView_cameraVideoSizeAspectRatio)) {
+            //noinspection ConstantConditions
+            videoConstraints.add(SizeSelectors.aspectRatio(AspectRatio.parse(a.getString(R.styleable.CameraView_cameraVideoSizeAspectRatio)), 0));
+        }
+        if (a.getBoolean(R.styleable.CameraView_cameraVideoSizeSmallest, false)) videoConstraints.add(SizeSelectors.smallest());
+        if (a.getBoolean(R.styleable.CameraView_cameraVideoSizeBiggest, false)) videoConstraints.add(SizeSelectors.biggest());
+        SizeSelector videoSelector = !videoConstraints.isEmpty() ?
+                SizeSelectors.and(videoConstraints.toArray(new SizeSelector[videoConstraints.size()])) :
                 SizeSelectors.biggest();
 
         // Gestures
@@ -167,7 +197,8 @@ public class CameraView extends FrameLayout {
         setGrid(grid);
         setHdr(hdr);
         setAudio(audio);
-        setPictureSize(selector);
+        setPictureSize(pictureSelector);
+        setVideoSize(videoSelector);
         setVideoCodec(codec);
         setVideoMaxSize(videoMaxSize);
         setVideoMaxDuration(videoMaxDuration);
@@ -982,8 +1013,8 @@ public class CameraView extends FrameLayout {
 
 
     /**
-     * Sets picture capture size for picture mode.
-     * The {@link SizeSelector} will be invoked with the list of available size, and the first
+     * Sets a capture size selector for picture mode.
+     * The {@link SizeSelector} will be invoked with the list of available sizes, and the first
      * acceptable size will be accepted and passed to the internal engine.
      * See the {@link SizeSelectors} class for handy utilities for creating selectors.
      *
@@ -991,6 +1022,19 @@ public class CameraView extends FrameLayout {
      */
     public void setPictureSize(@NonNull SizeSelector selector) {
         mCameraController.setPictureSizeSelector(selector);
+    }
+
+
+    /**
+     * Sets a capture size selector for video mode.
+     * The {@link SizeSelector} will be invoked with the list of available sizes, and the first
+     * acceptable size will be accepted and passed to the internal engine.
+     * See the {@link SizeSelectors} class for handy utilities for creating selectors.
+     *
+     * @param selector a size selector
+     */
+    public void setVideoSize(@NonNull SizeSelector selector) {
+        mCameraController.setVideoSizeSelector(selector);
     }
 
 
@@ -1183,7 +1227,9 @@ public class CameraView extends FrameLayout {
 
     /**
      * Returns the size used for pictures taken with {@link #takePicture()},
-     * or null if it hasn't been computed (for example if the surface is not ready).
+     * or null if it hasn't been computed (for example if the surface is not ready),
+     * or null if we are in video mode.
+     *
      * The size is rotated to match the output orientation.
      *
      * @return the size of pictures
@@ -1191,6 +1237,21 @@ public class CameraView extends FrameLayout {
     @Nullable
     public Size getPictureSize() {
         return mCameraController.getPictureSize(CameraController.REF_OUTPUT);
+    }
+
+
+    /**
+     * Returns the size used for videos taken with {@link #takeVideo(File)},
+     * or null if it hasn't been computed (for example if the surface is not ready),
+     * or null if we are in picture mode.
+     *
+     * The size is rotated to match the output orientation.
+     *
+     * @return the size of videos
+     */
+    @Nullable
+    public Size getVideoSize() {
+        return mCameraController.getVideoSize(CameraController.REF_OUTPUT);
     }
 
 

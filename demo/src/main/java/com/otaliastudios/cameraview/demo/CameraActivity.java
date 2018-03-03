@@ -146,6 +146,10 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void capturePicture() {
+        if (camera.getMode() == Mode.VIDEO) {
+            message("Can't take HQ pictures while in VIDEO mode.", false);
+            return;
+        }
         if (mCapturingPicture) return;
         mCapturingPicture = true;
         mCaptureTime = System.currentTimeMillis();
@@ -162,8 +166,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void captureVideo() {
-        if (camera.getMode() != Mode.VIDEO) {
-            message("Can't record video while session type is 'picture'.", false);
+        if (camera.getMode() == Mode.PICTURE) {
+            message("Can't record HQ videos while in PICTURE mode.", false);
             return;
         }
         if (mCapturingPicture || mCapturingVideo) return;
