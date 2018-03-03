@@ -42,7 +42,6 @@ public class CameraView extends FrameLayout {
 
     public final static int PERMISSION_REQUEST_CODE = 16;
 
-    final static boolean DEFAULT_CROP_OUTPUT = false;
     final static boolean DEFAULT_PLAY_SOUNDS = true;
 
     // Self managed parameters
@@ -67,7 +66,6 @@ public class CameraView extends FrameLayout {
 
     // Threading
     private Handler mUiHandler;
-    private WorkerHandler mWorkerHandler;
     private WorkerHandler mFrameProcessorsHandler;
 
     public CameraView(@NonNull Context context) {
@@ -146,7 +144,6 @@ public class CameraView extends FrameLayout {
         mCameraCallbacks = new Callbacks();
         mCameraController = instantiateCameraController(mCameraCallbacks);
         mUiHandler = new Handler(Looper.getMainLooper());
-        mWorkerHandler = WorkerHandler.get("CameraViewWorker");
         mFrameProcessorsHandler = WorkerHandler.get("FrameProcessorsWorker");
 
         // Views
