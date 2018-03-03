@@ -1585,9 +1585,5 @@ public class CameraView extends FrameLayout {
 
     //region deprecated APIs
 
-    /* for tests */int getCameraId(){
-        return mCameraController.mCameraId;
-    }
-
     //endregion
 }
