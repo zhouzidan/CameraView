@@ -229,7 +229,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         mPictureSize = null;
         mIsBound = false;
         mIsCapturingImage = false;
-        mIsCapturingVideo = false;
+        mIsTakingVideo = false;
         LOG.w("onStop:", "Clean up.", "Returning.");
         if (error != null) throw new CameraException(error);
     }
@@ -304,7 +304,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             params.setGpsTimestamp(mLocation.getTime());
             params.setGpsProcessingMethod(mLocation.getProvider());
 
-            if (mIsCapturingVideo && mMediaRecorder != null) {
+            if (mIsTakingVideo && mMediaRecorder != null) {
                 mMediaRecorder.setLocation((float) mLocation.getLatitude(),
                         (float) mLocation.getLongitude());
             }
@@ -392,7 +392,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
     @Override
     void setAudio(Audio audio) {
         if (mAudio != audio) {
-            if (mIsCapturingVideo) {
+            if (mIsTakingVideo) {
                 LOG.w("Audio setting was changed while recording. " +
                         "Changes will take place starting from next video");
             }
@@ -458,7 +458,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         schedule(mVideoQualityTask, true, new Runnable() {
             @Override
             public void run() {
-                if (mIsCapturingVideo) {
+                if (mIsTakingVideo) {
                     // TODO: actually any call to getParameters() could fail while recording a video.
                     // See. https://stackoverflow.com/questions/14941625/
                     mVideoQuality = old;
@@ -492,7 +492,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             public void run() {
                 LOG.v("takePicture: performing.", mIsCapturingImage);
                 if (mIsCapturingImage) return;
-                if (mIsCapturingVideo && !mCameraOptions.isVideoSnapshotSupported()) return;
+                if (mIsTakingVideo && !mCameraOptions.isVideoSnapshotSupported()) return;
 
                 mIsCapturingImage = true;
                 final int sensorToOutput = offset(REF_SENSOR, REF_OUTPUT);
@@ -548,7 +548,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
                 // This won't work while capturing a video.
                 // Switch to takePicture.
                 // TODO v2: what to do here?
-                if (mIsCapturingVideo) {
+                if (mIsTakingVideo) {
                     takePicture();
                     return;
                 }
@@ -641,9 +641,9 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         schedule(mStartVideoTask, true, new Runnable() {
             @Override
             public void run() {
-                if (mIsCapturingVideo) return;
+                if (mIsTakingVideo) return;
                 if (mSessionType == SessionType.VIDEO) {
-                    mIsCapturingVideo = true;
+                    mIsTakingVideo = true;
 
                     // Create the video result
                     CamcorderProfile profile = getCamcorderProfile();
@@ -726,8 +726,8 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
 
     @WorkerThread
     private void stopVideoImmediately() {
-        LOG.i("stopVideoImmediately:", "is capturing:", mIsCapturingVideo);
-        mIsCapturingVideo = false;
+        LOG.i("stopVideoImmediately:", "is capturing:", mIsTakingVideo);
+        mIsTakingVideo = false;
         if (mMediaRecorder != null) {
             try {
                 mMediaRecorder.stop();
