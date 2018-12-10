@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.Lifecycling;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -39,7 +38,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import static android.view.View.MeasureSpec.AT_MOST;
 import static android.view.View.MeasureSpec.EXACTLY;
 import static android.view.View.MeasureSpec.UNSPECIFIED;
-
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 
@@ -1042,6 +1040,11 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
      */
     public void setPictureSize(@NonNull SizeSelector selector) {
         mCameraController.setPictureSizeSelector(selector);
+    }
+
+
+    public void setPreviewSize(@NonNull SizeSelector selector){
+        mCameraController.setPreviewSizeSelector(selector);
     }
 
 
